@@ -1,0 +1,28 @@
+From: "PayPal Security Center" <service-notice@paypa1-update.xyz>
+Reply-To: <collector@darkweb-drop.top>
+To: target_user@company.com
+Subject: URGENT: Your PayPal Account Has Been Suspended! Immediate Action Required
+Date: Thu, 05 Nov 2026 11:15:22 +0000
+Message-ID: <phish.981723@paypa1-update.xyz>
+Authentication-Results: mx.company.com; spf=fail (sender IP 185.220.101.5 is not allowed) smtp.mailfrom=paypa1-update.xyz; dkim=fail; dmarc=fail
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+
+<!DOCTYPE html>
+<html>
+<body>
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; padding: 20px;">
+    <h2 style="color: #003087;">PayPal Account Security Notice</h2>
+    <p>Dear Customer,</p>
+    <p>We detected unauthorized access to your PayPal account from an unrecognized IP address (185.220.101.5 - Moscow, Russia).</p>
+    <p style="color: #d9534f; font-weight: bold;">Your account access has been temporarily restricted to protect your funds.</p>
+    <p>You must confirm your identity and billing information within 24 hours to avoid permanent account termination and forfeiture of your balance.</p>
+    <div style="margin: 30px 0; text-align: center;">
+      <a href="http://185.220.101.5/paypal-login/verify.php" style="background-color: #0070ba; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+        https://www.paypal.com/signin/verify-account
+      </a>
+    </div>
+    <p style="font-size: 12px; color: #777;">Please do not reply to this automated email. Copyright 2026 PayPal Inc.</p>
+  </div>
+</body>
+</html>

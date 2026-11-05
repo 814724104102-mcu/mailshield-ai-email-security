@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MailShield AI - Intelligent Email Security System</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Custom Cyber Theme -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar navbar-expand-lg border-bottom border-dark py-3" style="background-color: #0d131f;">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand d-flex align-items-center gap-2 text-white fw-bold" href="#">
+        <i class="fa-solid fa-shield-halved text-info fs-3"></i>
+        <span>MailShield <span class="badge bg-info text-dark ms-1">AI</span></span>
+      </a>
+      <div class="d-none d-md-flex align-items-center gap-2 text-muted small ms-4">
+        <span class="status-dot online"></span>
+        <span>DEFENSE ENGINES ACTIVE: SPF • DKIM • DMARC • NLP-ML • URL • CRYPTO</span>
+      </div>
+      <div class="ms-auto d-flex align-items-center gap-3">
+        <ul class="nav nav-pills" id="mainTab" role="tablist">
+          <li class="nav-item">
+            <button class="nav-link active" id="scanner-tab" data-bs-toggle="pill" data-bs-target="#scanner-pane" type="button">
+              <i class="fa-solid fa-radar me-1"></i> Live Scanner
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="quarantine-tab" data-bs-toggle="pill" data-bs-target="#quarantine-pane" type="button" onclick="loadQuarantine()">
+              <i class="fa-solid fa-box-archive me-1"></i> Quarantine <span class="badge bg-danger ms-1" id="quarantine-count-badge">0</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="crypto-tab" data-bs-toggle="pill" data-bs-target="#crypto-pane" type="button">
+              <i class="fa-solid fa-key me-1"></i> Crypto Studio
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="stats-tab" data-bs-toggle="pill" data-bs-target="#stats-pane" type="button" onclick="loadStats()">
+              <i class="fa-solid fa-chart-line me-1"></i> SOC Stats
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="docs-tab" data-bs-toggle="pill" data-bs-target="#docs-pane" type="button">
+              <i class="fa-solid fa-book-bookmark me-1"></i> Viva Docs
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content Container -->
+  <div class="container-fluid px-4 py-4">
+    <div class="tab-content" id="mainTabContent">
+
+      <!-- ========================================== -->
+      <!-- TAB 1: LIVE THREAT SCANNER -->
+      <!-- ========================================== -->
+      <div class="tab-pane fade show active" id="scanner-pane" role="tabpanel">
+
+        <!-- 1-Click Demo Scenarios -->
+        <div class="cyber-card mb-4 p-3">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-flask-vial text-info fs-5"></i>
+              <span class="fw-bold">1-Click Demo Scenarios:</span>
+              <span class="text-muted small">Load ready-to-test email samples for demonstration</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-sm btn-outline-success" onclick="loadSampleScenario(1)">
+                <i class="fa-solid fa-check-circle me-1"></i> 1. Legitimate Sync
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="loadSampleScenario(2)">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i> 2. PayPal Phishing
+              </button>
+              <button class="btn btn-sm btn-outline-warning" onclick="loadSampleScenario(3)">
+                <i class="fa-solid fa-user-secret me-1"></i> 3. CEO Wire Fraud (BEC)
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="loadSampleScenario(4)">
+                <i class="fa-solid fa-bug me-1"></i> 4. Overdue Malware Invoice
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Left Column: Input Form -->
+          <div class="col-lg-5">
+            <div class="cyber-card">
+              <div class="cyber-card-header">
+                <span class="fw-bold"><i class="fa-solid fa-envelope-open-text text-info me-2"></i>Email Inspection Input</span>
+                <span class="badge bg-secondary">RFC 822 / Text</span>
+              </div>
+              <div class="cyber-card-body">
+
+                <!-- EML Drag & Drop Zone -->
+                <div class="dropzone mb-3" id="eml-dropzone">
+                  <i class="fa-solid fa-cloud-arrow-up fs-3 text-info mb-1"></i>
+                  <div class="small fw-bold">Upload or Drag & Drop .EML file</div>
+                  <div class="text-muted" style="font-size: 0.75rem;">Upload genuine or raw phishing email files for auto-extraction</div>
+                  <input type="file" id="eml-file-input" accept=".eml,.msg,.txt" style="display: none;" onchange="handleEmlUpload(event)">
+                </div>
+
+                <form id="email-scan-form" onsubmit="handleScanSubmit(event)">
+                  <div class="mb-3">
+                    <label class="form-label">From / Sender Header</label>
+                    <input type="text" class="form-control form-control-sm" id="input-sender" placeholder='"Display Name" <user@domain.com>' required>
+                  </div>
+
+                  <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Reply-To (Optional)</label>
+                      <input type="text" class="form-control form-control-sm" id="input-reply-to" placeholder='Optional Reply-To'>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Authentication Header Simulation</label>
+                      <select class="form-select form-select-sm" id="input-auth">
+                        <option value="spf=pass dkim=pass dmarc=pass">SPF: PASS | DKIM: PASS | DMARC: PASS</option>
+                        <option value="spf=fail dkim=fail dmarc=fail">SPF: FAIL | DKIM: FAIL | DMARC: FAIL (Spoofed)</option>
+                        <option value="spf=neutral dkim=none dmarc=none">SPF: NEUTRAL | DKIM: NONE (Unauthenticated)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Subject</label>
+                    <input type="text" class="form-control form-control-sm" id="input-subject" placeholder='e.g., URGENT: Verify your account immediately' required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Email Body (Plaintext or HTML)</label>
+                    <textarea class="form-control form-control-sm" id="input-body" rows="6" placeholder="Paste full email body content with links..." required></textarea>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Attachments (Comma Separated)</label>
+                    <input type="text" class="form-control form-control-sm" id="input-attachments" placeholder="e.g. invoice.pdf, security_patch.exe, document.pdf.exe">
+                  </div>
+
+                  <div class="d-grid">
+                    <button type="submit" class="btn btn-info fw-bold py-2" id="btn-scan">
+                      <i class="fa-solid fa-shield-virus me-2"></i>Run Multi-Layer Inspection
+                    </button>
+                  </div>
+                </form>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Security Verdict & Detailed Breakdown -->
+          <div class="col-lg-7">
+
+            <!-- Default Placeholder when no scan performed -->
+            <div id="scan-placeholder" class="cyber-card p-5 text-center">
+              <i class="fa-solid fa-shield-halved text-muted mb-3" style="font-size: 4rem;"></i>
+              <h4 class="text-white">Security Inspection Engine Ready</h4>
+              <p class="text-muted col-lg-8 mx-auto">
+                Select one of the <strong>1-Click Demo Scenarios</strong> above or paste an email on the left to trigger the multi-vector defense pipeline (ML Content Classifier, Header & Spoofing Detector, Malicious URL Scanner, and Attachment Payload Analysis).
+              </p>
+            </div>
+
+            <!-- Active Scan Results (Hidden by default) -->
+            <div id="scan-results" style="display: none;">
+
+              <!-- Verdict Banner Card -->
+              <div class="cyber-card mb-4 p-4">
+                <div class="row align-items-center">
+                  <div class="col-md-4 text-center border-end border-secondary pe-md-4">
+                    <div class="threat-meter-container">
+                      <canvas id="threatGaugeChart"></canvas>
+                      <div class="threat-score-number">
+                        <div class="threat-score-val" id="res-threat-score">0</div>
+                        <div class="threat-score-lbl">Threat Score</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-8 ps-md-4 mt-3 mt-md-0">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                      <span class="text-muted small text-uppercase">Security Action Verdict:</span>
+                      <div id="res-verdict-badge" class="badge-verdict">VERDICT</div>
+                    </div>
+                    <h4 class="fw-bold mb-1" id="res-action-desc">Action description</h4>
+                    <p class="text-muted small mb-0" id="res-meta-summary">Subject: ...</p>
+                  </div>
+                </div>
+
+                <!-- Critical Alerts Box -->
+                <div id="res-critical-alerts-container" class="mt-3" style="display: none;">
+                  <div class="alert alert-danger mb-0 py-2 px-3 small border-0">
+                    <div class="fw-bold mb-1"><i class="fa-solid fa-triangle-exclamation me-1"></i> Critical Security Overrides Detected:</div>
+                    <ul class="mb-0 ps-3" id="res-critical-alerts-list"></ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4-Vector Breakdown Grid -->
+              <div class="row g-3">
+
+                <!-- 1. ML Phishing & NLP -->
+                <div class="col-md-6">
+                  <div class="cyber-card h-100">
+                    <div class="cyber-card-header">
+                      <span class="small fw-bold text-info"><i class="fa-solid fa-brain me-1"></i> 1. ML Phishing & Urgency</span>
+                      <span class="badge bg-dark border" id="res-ml-confidence">0%</span>
+                    </div>
+                    <div class="cyber-card-body small">
+                      <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                          <span>Phishing Probability:</span>
+                          <span class="fw-bold" id="res-ml-prob-val">0%</span>
+                        </div>
+                        <div class="progress" style="height: 6px; background-color: #1a2234;">
+                          <div id="res-ml-bar" class="progress-bar bg-danger" style="width: 0%"></div>
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                          <span>Psychological Urgency Index:</span>
+                          <span class="fw-bold" id="res-urgency-val">0%</span>
+                        </div>
+                        <div class="progress" style="height: 6px; background-color: #1a2234;">
+                          <div id="res-urgency-bar" class="progress-bar bg-warning" style="width: 0%"></div>
+                        </div>
+                      </div>
+                      <div class="fw-bold mb-1 text-muted">Explainable AI (XAI) Tokens:</div>
+                      <div id="res-xai-tokens" class="d-flex flex-wrap">
+                        <span class="text-muted italic">None detected</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Header & Spoofing -->
+                <div class="col-md-6">
+                  <div class="cyber-card h-100">
+                    <div class="cyber-card-header">
+                      <span class="small fw-bold text-info"><i class="fa-solid fa-address-card me-1"></i> 2. Header & Spoofing</span>
+                      <span class="badge bg-dark border" id="res-header-score">Risk: 0/100</span>
+                    </div>
+                    <div class="cyber-card-body small">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Authentication Status:</span>
+                        <div class="d-flex gap-1" id="res-auth-badges">
+                          <span class="badge bg-secondary" id="badge-spf">SPF: ?</span>
+                          <span class="badge bg-secondary" id="badge-dkim">DKIM: ?</span>
+                          <span class="badge bg-secondary" id="badge-dmarc">DMARC: ?</span>
+                        </div>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Sender Domain:</span>
+                        <span class="font-monospace text-info" id="res-sender-domain">domain.com</span>
+                      </div>
+                      <div class="fw-bold mb-1 text-muted">Header Security Alerts:</div>
+                      <div id="res-header-alerts" class="text-muted">No header anomalies</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Malicious Link Scanner -->
+                <div class="col-md-6">
+                  <div class="cyber-card h-100">
+                    <div class="cyber-card-header">
+                      <span class="small fw-bold text-info"><i class="fa-solid fa-link me-1"></i> 3. Malicious URL Radar</span>
+                      <span class="badge bg-dark border" id="res-url-count">0 URLs</span>
+                    </div>
+                    <div class="cyber-card-body small">
+                      <div class="d-flex justify-content-between mb-2">
+                        <span>Suspicious URLs:</span>
+                        <span class="fw-bold text-danger" id="res-url-bad-count">0</span>
+                      </div>
+                      <div id="res-url-list" style="max-height: 140px; overflow-y: auto;">
+                        <span class="text-muted">No URLs found in email body.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4. Attachment Defense -->
+                <div class="col-md-6">
+                  <div class="cyber-card h-100">
+                    <div class="cyber-card-header">
+                      <span class="small fw-bold text-info"><i class="fa-solid fa-paperclip me-1"></i> 4. Attachment Sandbox</span>
+                      <span class="badge bg-dark border" id="res-attach-count">0 Files</span>
+                    </div>
+                    <div class="cyber-card-body small">
+                      <div class="d-flex justify-content-between mb-2">
+                        <span>Dangerous Payloads:</span>
+                        <span class="fw-bold text-danger" id="res-attach-bad-count">0</span>
+                      </div>
+                      <div id="res-attach-list" style="max-height: 140px; overflow-y: auto;">
+                        <span class="text-muted">No attachments detected.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- TAB 2: QUARANTINE VAULT -->
+      <!-- ========================================== -->
+      <div class="tab-pane fade" id="quarantine-pane" role="tabpanel">
+        <div class="cyber-card">
+          <div class="cyber-card-header">
+            <div>
+              <span class="fw-bold fs-5 text-white"><i class="fa-solid fa-vault text-danger me-2"></i>Security Quarantine Vault</span>
+              <span class="text-muted small ms-2">Isolated high-threat emails prevented from reaching end-user inboxes</span>
+            </div>
+            <button class="btn btn-sm btn-outline-info" onclick="loadQuarantine()">
+              <i class="fa-solid fa-rotate me-1"></i> Refresh Vault
+            </button>
+          </div>
+          <div class="cyber-card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-cyber mb-0">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Intercepted At</th>
+                    <th>Sender</th>
+                    <th>Subject</th>
+                    <th>Threat Score</th>
+                    <th>Trigger Reason</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="quarantine-table-body">
+                  <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">Loading quarantine records...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- TAB 3: CRYPTO STUDIO (E2E ENCRYPTION & SIGNING) -->
+      <!-- ========================================== -->
+      <div class="tab-pane fade" id="crypto-pane" role="tabpanel">
+        <div class="row g-4">
+          <!-- Left: Keypair Manager -->
+          <div class="col-lg-5">
+            <div class="cyber-card mb-4">
+              <div class="cyber-card-header">
+                <span class="fw-bold"><i class="fa-solid fa-key text-info me-2"></i>RSA 2048-bit Keypair Management</span>
+                <button class="btn btn-sm btn-info fw-bold" onclick="generateKeypair()">
+                  <i class="fa-solid fa-arrows-rotate me-1"></i> Generate New Keypair
+                </button>
+              </div>
+              <div class="cyber-card-body">
+                <div class="mb-3">
+                  <label class="form-label">Recipient Public Key (PEM)</label>
+                  <textarea class="form-control form-control-sm font-monospace" id="crypto-pubkey" rows="6" placeholder="Click 'Generate New Keypair' or paste public key..."></textarea>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Private Key (Confidential PEM)</label>
+                  <textarea class="form-control form-control-sm font-monospace text-warning" id="crypto-privkey" rows="6" placeholder="Private key for decryption and signing..."></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Encrypt, Decrypt & Sign Playground -->
+          <div class="col-lg-7">
+            <div class="cyber-card mb-4">
+              <div class="cyber-card-header">
+                <ul class="nav nav-pills" id="cryptoSubTab" role="tablist">
+                  <li class="nav-item">
+                    <button class="nav-link active py-1 px-3 small" id="enc-sub-tab" data-bs-toggle="pill" data-bs-target="#enc-pane" type="button">
+                      <i class="fa-solid fa-lock me-1"></i> 1. Encrypt Message
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <button class="nav-link py-1 px-3 small" id="dec-sub-tab" data-bs-toggle="pill" data-bs-target="#dec-pane" type="button">
+                      <i class="fa-solid fa-lock-open me-1"></i> 2. Decrypt Ciphertext
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <button class="nav-link py-1 px-3 small" id="sign-sub-tab" data-bs-toggle="pill" data-bs-target="#sign-pane" type="button">
+                      <i class="fa-solid fa-file-signature me-1"></i> 3. Digital Signature (Integrity)
+                    </button>
+                  </li>
+                </ul>
+              </div>
+              <div class="cyber-card-body">
+                <div class="tab-content" id="cryptoSubTabContent">
+
+                  <!-- 1. Encrypt -->
+                  <div class="tab-pane fade show active" id="enc-pane" role="tabpanel">
+                    <p class="small text-muted">
+                      Demonstrates <strong>Hybrid Cryptography</strong>: The email content is encrypted with a one-time ephemeral <strong>AES-256-GCM</strong> symmetric key, and that AES key is encrypted with the recipient's <strong>RSA-2048</strong> public key (OAEP SHA-256).
+                    </p>
+                    <div class="mb-3">
+                      <label class="form-label">Plaintext Email Message</label>
+                      <textarea class="form-control form-control-sm" id="enc-plaintext" rows="4">CONFIDENTIAL: Project Mercury financials are locked in vault #8492. Do not disclose.</textarea>
+                    </div>
+                    <button class="btn btn-info btn-sm fw-bold mb-3" onclick="executeEncrypt()">
+                      <i class="fa-solid fa-lock me-1"></i> Encrypt with Public Key
+                    </button>
+                    <div>
+                      <label class="form-label">Encrypted Envelope (Base64 JSON)</label>
+                      <textarea class="form-control form-control-sm font-monospace text-info" id="enc-ciphertext" rows="5" readonly></textarea>
+                    </div>
+                  </div>
+
+                  <!-- 2. Decrypt -->
+                  <div class="tab-pane fade" id="dec-pane" role="tabpanel">
+                    <p class="small text-muted">
+                      Recipient decrypts the AES session key using their private RSA key, then unwraps the AES-256-GCM authenticated payload.
+                    </p>
+                    <div class="mb-3">
+                      <label class="form-label">Encrypted Envelope to Decrypt</label>
+                      <textarea class="form-control form-control-sm font-monospace" id="dec-ciphertext-input" rows="4" placeholder="Paste Base64 ciphertext envelope..."></textarea>
+                    </div>
+                    <button class="btn btn-primary btn-sm fw-bold mb-3" onclick="executeDecrypt()">
+                      <i class="fa-solid fa-key me-1"></i> Decrypt with Private Key
+                    </button>
+                    <div>
+                      <label class="form-label">Recovered Original Plaintext</label>
+                      <textarea class="form-control form-control-sm text-success fw-bold" id="dec-plaintext-output" rows="4" readonly></textarea>
+                    </div>
+                  </div>
+
+                  <!-- 3. Digital Signatures -->
+                  <div class="tab-pane fade" id="sign-pane" role="tabpanel">
+                    <p class="small text-muted">
+                      Generates an <strong>RSA-PSS SHA-256</strong> digital signature using the sender's private key. Anyone with the sender's public key can verify that the message came from them and was not modified in transit.
+                    </p>
+                    <div class="mb-3">
+                      <label class="form-label">Message to Sign</label>
+                      <input type="text" class="form-control form-control-sm" id="sign-message-input" value="I authorize the transfer of budget code ACME-9021. Signed by CFO.">
+                    </div>
+                    <div class="d-flex gap-2 mb-3">
+                      <button class="btn btn-success btn-sm fw-bold" onclick="executeSign()">
+                        <i class="fa-solid fa-signature me-1"></i> Generate Signature
+                      </button>
+                      <button class="btn btn-outline-warning btn-sm" onclick="tamperSignatureMessage()">
+                        <i class="fa-solid fa-virus me-1"></i> Tamper With Message (Add 1 byte)
+                      </button>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Cryptographic Signature (Base64 RSA-PSS)</label>
+                      <textarea class="form-control form-control-sm font-monospace text-warning" id="sign-output" rows="3" readonly></textarea>
+                    </div>
+                    <button class="btn btn-info btn-sm fw-bold mb-2" onclick="executeVerifySignature()">
+                      <i class="fa-solid fa-certificate me-1"></i> Verify Signature with Public Key
+                    </button>
+                    <div id="verify-status-banner" class="mt-2"></div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- TAB 4: SOC STATS & AUDIT LOG -->
+      <!-- ========================================== -->
+      <div class="tab-pane fade" id="stats-pane" role="tabpanel">
+        <div class="row g-4 mb-4">
+          <div class="col-md-3">
+            <div class="cyber-card p-3 text-center">
+              <div class="text-muted small text-uppercase fw-bold">Total Emails Scanned</div>
+              <div class="fs-2 fw-bold text-info" id="stat-total">0</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="cyber-card p-3 text-center">
+              <div class="text-muted small text-uppercase fw-bold">Threats Quarantined</div>
+              <div class="fs-2 fw-bold text-danger" id="stat-quarantined">0</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="cyber-card p-3 text-center">
+              <div class="text-muted small text-uppercase fw-bold">Warnings Injected</div>
+              <div class="fs-2 fw-bold text-warning" id="stat-warned">0</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="cyber-card p-3 text-center">
+              <div class="text-muted small text-uppercase fw-bold">Clean Deliveries</div>
+              <div class="fs-2 fw-bold text-success" id="stat-clean">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cyber-card">
+          <div class="cyber-card-header">
+            <span class="fw-bold"><i class="fa-solid fa-list-check text-info me-2"></i>Recent Security Scan Audit Log</span>
+          </div>
+          <div class="cyber-card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-cyber mb-0">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Timestamp</th>
+                    <th>Sender</th>
+                    <th>Subject</th>
+                    <th>Threat Score</th>
+                    <th>Verdict</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-scans-table-body">
+                  <tr>
+                    <td colspan="6" class="text-center py-3 text-muted">No scan history recorded yet.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- TAB 5: VIVA DOCS & ARCHITECTURE -->
+      <!-- ========================================== -->
+      <div class="tab-pane fade" id="docs-pane" role="tabpanel">
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <div class="cyber-card p-4 mb-4">
+              <h4 class="text-info fw-bold mb-3"><i class="fa-solid fa-shield-halved me-2"></i>MailShield AI - Project Defense & Architecture Guide</h4>
+              <p class="text-muted">
+                MailShield AI is a modular, defense-in-depth <strong>Email Security Gateway</strong> that analyzes inbound emails across multiple attack vectors: content semantics, sender authenticity, deceptive hyperlinks, and malicious attachment payloads.
+              </p>
+
+              <h5 class="text-white mt-4 fw-bold">Multi-Layered Security Pipeline</h5>
+              <div class="p-3 my-3" style="background-color: #0b0f19; border-left: 3px solid #06b6d4; border-radius: 4px;">
+                <ol class="mb-0 ps-3 text-muted small">
+                  <li class="mb-2"><strong>MIME Ingestion & Header Parser:</strong> Deconstructs RFC 822 email packages into headers, body parts (HTML/text), and attachments.</li>
+                  <li class="mb-2"><strong>Authentication & Spoofing Engine:</strong> Evaluates SPF, DKIM, and DMARC alignments, detects display-name impersonation, and calculates Levenshtein distance against known brand domains for typosquatting.</li>
+                  <li class="mb-2"><strong>NLP & Machine Learning Phishing Classifier:</strong> Tokenizes email body and subject using TF-IDF (Sublinear term frequency, 1-2 n-grams) and applies a balanced Logistic Regression classifier with Explainable AI (XAI) feature attribution.</li>
+                  <li class="mb-2"><strong>Link & URL Audit:</strong> Extracts HTML anchor tags and plain URLs, detects mismatched anchor texts, IP address hostnames, deceptive subdomains, and high-risk TLDs.</li>
+                  <li class="mb-2"><strong>Attachment Sandbox:</strong> Detects double-extension exploits (e.g. <code>.pdf.exe</code>), macro-enabled documents (<code>.docm</code>), computes SHA-256 digests, and matches against threat intelligence lists.</li>
+                  <li><strong>Cryptographic Suite:</strong> Provides end-to-end privacy and integrity via Hybrid AES-256-GCM + RSA-2048 encryption and RSA-PSS digital signatures.</li>
+                </ol>
+              </div>
+
+              <h5 class="text-white mt-4 fw-bold">Core Mathematical & Cryptographic Models</h5>
+              <ul class="text-muted small">
+                <li><strong>TF-IDF (Term Frequency-Inverse Document Frequency):</strong> Weights rare, high-information security urgency terms higher than common stop words.</li>
+                <li><strong>Levenshtein Edit Distance:</strong> Measures minimum single-character edits (insertions, deletions, substitutions) to identify lookalike brand domains (e.g., <code>paypa1.com</code> vs <code>paypal.com</code>).</li>
+                <li><strong>Hybrid Cryptography:</strong> Combines asymmetric RSA-2048 for key exchange with symmetric AES-256-GCM for authenticated stream encryption.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Right Column: Viva Questions -->
+          <div class="col-lg-4">
+            <div class="cyber-card p-4">
+              <h5 class="text-white fw-bold mb-3"><i class="fa-solid fa-graduation-cap text-warning me-2"></i>Viva / Presentation Q&A</h5>
+
+              <div class="accordion accordion-flush" id="vivaAccordion">
+                <div class="accordion-item bg-transparent text-white border-secondary">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed bg-transparent text-info small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#q1">
+                      1. How does SPF, DKIM, and DMARC work together?
+                    </button>
+                  </h2>
+                  <div id="q1" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                    <div class="accordion-body text-muted small">
+                      <strong>SPF</strong> verifies sender IP against DNS records. <strong>DKIM</strong> provides a cryptographic digital signature on the email header/body. <strong>DMARC</strong> enforces domain alignment between From and SPF/DKIM, specifying whether failing emails should be quarantined or rejected.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item bg-transparent text-white border-secondary">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed bg-transparent text-info small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#q2">
+                      2. What is Display Name Spoofing?
+                    </button>
+                  </h2>
+                  <div id="q2" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                    <div class="accordion-body text-muted small">
+                      Attackers set their display name to a trusted brand (e.g., "PayPal Support"), while the actual underlying email address is a completely unrelated external mailbox (e.g., <code>attacker@xyz.com</code>). MailShield AI detects when the display name claims a brand identity that the sender domain does not belong to.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item bg-transparent text-white border-secondary">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed bg-transparent text-info small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#q3">
+                      3. Why use Hybrid Cryptography instead of pure RSA?
+                    </button>
+                  </h2>
+                  <div id="q3" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                    <div class="accordion-body text-muted small">
+                      RSA asymmetric encryption is computationally slow and can only encrypt data smaller than its key size (e.g., ~214 bytes for RSA-2048 with OAEP). Hybrid encryption uses blazing-fast AES-256-GCM for arbitrary-sized emails and attachments, and only encrypts the 32-byte AES key with RSA.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item bg-transparent text-white border-secondary">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed bg-transparent text-info small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#q4">
+                      4. How are double-extension exploits executed?
+                    </button>
+                  </h2>
+                  <div id="q4" class="accordion-collapse collapse" data-bs-parent="#vivaAccordion">
+                    <div class="accordion-body text-muted small">
+                      Windows hides known extensions by default. An attacker names a file <code>Report.pdf.exe</code>. The user sees <code>Report.pdf</code> with a document icon, double-clicks it, and unknowingly executes malicious binary code. MailShield AI analyzes all extension segments to catch this.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Main Application Script -->
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
